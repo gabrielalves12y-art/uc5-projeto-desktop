@@ -20,4 +20,11 @@ interface Pedido {
   Idprodutos: number[];
 }
 
-export { Produtos, Cliente, Pedido };
+interface Itens_do_pedido {
+  id: number;
+  Idpedido: number; 
+  Idproduto: number;
+  quantidade: number;
+}
+
+export { Produtos, Cliente, Pedido, Itens_do_pedido };
