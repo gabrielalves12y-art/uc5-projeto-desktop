@@ -1,30 +1,44 @@
-interface Produtos {
-  id: number;
-  nome: string;
-  preco: number;
-  descricao: string;
-  categoria: string;
+
+export interface Produto {
+  id: string
+  nome: string
+  preco: number
 }
 
-interface Cliente {
-  id: number;
-  nome: string;
-  telefone?: string;
-  endereco: string;
+export interface Pedido {
+  id: number
+  cliente: string
+  itens: ItemPedido[]
+  status: StatusPedido
+  observacoes: string
+  criadoEm: string
+  atualizadoEm: string
 }
 
-interface Pedido {
-  id: number;
-  Idcliente: number;
-  data: Date;
-  Idprodutos: number[];
+export interface NovoPedido {
+  cliente: string
+  observacoes: string
+  itens: Array<{ produto: string; quantidade: number; valorUnitario: number }>
 }
 
-interface Itens_do_pedido {
-  id: number;
-  Idpedido: number; 
-  Idproduto: number;
-  quantidade: number;
+export interface AtualizarPedido {
+  id: number
+  cliente: string
+  observacoes: string
+  itens: Array<{ produto: string; quantidade: number; valorUnitario: number }>
 }
 
-export { Produtos, Cliente, Pedido, Itens_do_pedido };
+export type StatusPedido = 'pendente' | 'em_andamento' | 'concluido' | 'cancelado';
+
+export const STATUS_LABELS: Record<StatusPedido, string> = {
+  pendente: 'Pendente',
+  em_andamento: 'Em andamento',
+  concluido: 'Concluído',
+  cancelado: 'Cancelado',
+}
+
+
+
+
+
+

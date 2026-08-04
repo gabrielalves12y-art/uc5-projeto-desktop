@@ -84,3 +84,6 @@ Alterações em `src/main.ts` não são recarregadas automaticamente: o Vite atu
 o Renderer. Depois de mexer no processo Main, reinicie a aplicação.
 
 O `.gitignore` já cobre `node_modules/`, as saídas de build e o `.env`.
+
+
+//NÃO MEXER

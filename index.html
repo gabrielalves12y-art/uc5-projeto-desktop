@@ -3,10 +3,86 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Meu sistema de gerenciamento de pedidos</title>
+    <title>Gerenciamento de Pedidos</title>
+    <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <header class="topo">
+        <h1>Gerenciamento de Pedidos</h1>
+        <button id="botao-novo-pedido" class="botao botao-primario" type="button">+ Novo pedido</button>
+      </header>
+
+      <section class="resumo" id="resumo-cards" aria-label="Resumo dos pedidos"></section>
+
+      <section class="filtros">
+        <input
+          id="filtro-busca"
+          type="search"
+          placeholder="Buscar por cliente..."
+          aria-label="Buscar por cliente"
+        />
+        <select id="filtro-status" aria-label="Filtrar por status">
+          <option value="todos">Todos os status</option>
+          <option value="pendente">Pendente</option>
+          <option value="em_andamento">Em andamento</option>
+          <option value="concluido">Concluído</option>
+          <option value="cancelado">Cancelado</option>
+        </select>
+      </section>
+
+      <section aria-label="Lista de pedidos">
+        <table class="tabela-pedidos">
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Itens</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Criado em</th>
+              <th class="coluna-acoes">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="corpo-tabela-pedidos"></tbody>
+        </table>
+        <p id="mensagem-lista-vazia" class="lista-vazia" hidden>Nenhum pedido encontrado.</p>
+      </section>
+    </div>
+
+    <dialog id="dialogo-pedido">
+      <form id="formulario-pedido" method="dialog">
+        <h2 id="titulo-dialogo-pedido">Novo pedido</h2>
+
+        <label class="campo">
+          <span>Cliente</span>
+          <input id="campo-cliente" type="text" required maxlength="120" placeholder="Nome do cliente" />
+        </label>
+
+        <label class="campo">
+          <span>Observações (opcional)</span>
+          <textarea id="campo-observacoes" rows="2" maxlength="500"></textarea>
+        </label>
+
+        <div class="itens-cabecalho">
+          <span>Itens do pedido</span>
+          <button id="botao-adicionar-item" class="botao botao-secundario" type="button">+ Item</button>
+        </div>
+
+        <div id="lista-itens" class="lista-itens"></div>
+
+        <p class="total-formulario">
+          Total: <strong id="total-formulario">R$ 0,00</strong>
+        </p>
+
+        <p id="erro-formulario" class="erro" hidden></p>
+
+        <div class="acoes-dialogo">
+          <button id="botao-cancelar-pedido" class="botao botao-secundario" type="button">Cancelar</button>
+          <button id="botao-salvar-pedido" class="botao botao-primario" type="submit">Salvar pedido</button>
+        </div>
+      </form>
+    </dialog>
+
     <script type="module" src="/src/renderer.ts"></script>
   </body>
 </html>

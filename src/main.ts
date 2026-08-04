@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, Menu } from 'electron'
 import path from 'path'
 
+
 let mainWindow: BrowserWindow | null = null
 
 function createWindow() {
@@ -12,6 +13,7 @@ function createWindow() {
     center: true,
     title: 'Meu sistema de gerenciamento de pedidos',
     show: false,
+    
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -37,9 +39,9 @@ function createMenu() {
       label: 'Meu sistema de gerenciamento de pedidos',
       submenu: [
         {
-          label: 'Novo Pedido',
+          label: 'Visualizar pedidos',
           click: () => {
-            console.log('Novo pedido clicado')
+            console.log('Visualizar pedidos clicado')
           },
         },
         { type: 'separator' },
@@ -84,5 +86,5 @@ app.on('before-quit', () => {
 })
 
 ipcMain.handle('canal-ping', async () => {
-  return 'pong do processo principal!'
+  return 'Em desenvolvimento!'
 })
