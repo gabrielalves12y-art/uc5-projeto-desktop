@@ -44,10 +44,19 @@ export const STATUS_LABELS: Record<StatusPedido, string> = {
   cancelado: 'Cancelado',
 }
 
+export interface ProdutoPredefinido {
+  nome: string
+  valorUnitario: number
+}
+
+export const PRODUTOS_PREDEFINIDOS: ProdutoPredefinido[] = [
+  { nome: 'Produto A', valorUnitario: 10.0 },
+  { nome: 'Produto B', valorUnitario: 25.5 },
+  { nome: 'Produto C', valorUnitario: 49.9 },
+  { nome: 'Produto D', valorUnitario: 99.0 },
+  { nome: 'Produto E', valorUnitario: 150.0 },
+]
+
 export function calcularTotalPedido(pedido: Pick<Pedido, 'itens'>): number {
   return pedido.itens.reduce((soma, item) => soma + item.quantidade * item.valorUnitario, 0)
 }
-
-
-
-

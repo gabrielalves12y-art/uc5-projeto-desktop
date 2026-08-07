@@ -1,8 +1,6 @@
 import './style.css'
-import { calcularTotalPedido, STATUS_LABELS } from './type'
+import { calcularTotalPedido, STATUS_LABELS, PRODUTOS_PREDEFINIDOS } from './type'
 import type { Pedido, StatusPedido } from './type'
-
-// --- Referências aos elementos do DOM (todos já existem em index.html) ---
 
 const corpoTabela = document.getElementById('corpo-tabela-pedidos') as HTMLTableSectionElement
 const mensagemListaVazia = document.getElementById('mensagem-lista-vazia') as HTMLParagraphElement
@@ -29,7 +27,7 @@ let idPedidoEmEdicao: number | null = null
 interface LinhaItemRefs {
   id?: number
   linha: HTMLDivElement
-  produto: HTMLInputElement
+  selectProduto: HTMLSelectElement
   quantidade: HTMLInputElement
   valorUnitario: HTMLInputElement
 }
@@ -186,7 +184,6 @@ function escaparHtml(texto: string): string {
   return div.innerHTML
 }
 
-
 async function alterarStatus(id: number, status: StatusPedido): Promise<void> {
   await window.api.atualizarStatusPedido(id, status)
   await carregarPedidos()
@@ -204,11 +201,50 @@ function criarLinhaItem(valores?: { id?: number; produto: string; quantidade: nu
   const linha = document.createElement('div')
   linha.className = 'linha-item'
 
-  const produto = document.createElement('input')
-  produto.type = 'text'
-  produto.placeholder = 'Produto'
-  produto.required = true
-  produto.value = valores?.produto ?? ''
+  const selectProduto = document.createElement('select')
+  selectProduto.required = true
+
+  for (const p of PRODUTOS_PREDEFINIDOS) {
+    const opcao = document.createElement('option')
+    opcao.value = p.nome
+    opcao.textContent = `${p.nome} — ${formatarMoeda(p.valorUnitario)}`
+    opcao.dataset.valor = String(p.valorUnitario)
+    selectProduto.appendChild(opcao)
+  }
+
+  const valorUnitario = document.createElement('input')
+  valorUnitario.type = 'number'
+  valorUnitario.placeholder = 'Valor unit. (R$)'
+  valorUnitario.min = '0'
+  valorUnitario.step = '0.01'
+  valorUnitario.required = true
+
+  const preencherValorPorProduto = (): void => {
+    const opcaoSelecionada = selectProduto.selectedOptions[0]
+    if (opcaoSelecionada?.dataset.valor) {
+      valorUnitario.value = opcaoSelecionada.dataset.valor
+    }
+    atualizarTotalFormulario()
+  }
+
+  if (valores) {
+    const opcaoExistente = Array.from(selectProduto.options).find((o) => o.value === valores.produto)
+    if (opcaoExistente) {
+      selectProduto.value = valores.produto
+    } else {
+      const opcaoCustom = document.createElement('option')
+      opcaoCustom.value = valores.produto
+      opcaoCustom.textContent = valores.produto
+      opcaoCustom.dataset.valor = String(valores.valorUnitario)
+      selectProduto.insertBefore(opcaoCustom, selectProduto.firstChild)
+      selectProduto.value = valores.produto
+    }
+    valorUnitario.value = String(valores.valorUnitario)
+  } else {
+    preencherValorPorProduto()
+  }
+
+  selectProduto.addEventListener('change', preencherValorPorProduto)
 
   const quantidade = document.createElement('input')
   quantidade.type = 'number'
@@ -217,14 +253,6 @@ function criarLinhaItem(valores?: { id?: number; produto: string; quantidade: nu
   quantidade.step = '1'
   quantidade.required = true
   quantidade.value = String(valores?.quantidade ?? 1)
-
-  const valorUnitario = document.createElement('input')
-  valorUnitario.type = 'number'
-  valorUnitario.placeholder = 'Valor unit. (R$)'
-  valorUnitario.min = '0'
-  valorUnitario.step = '0.01'
-  valorUnitario.required = true
-  valorUnitario.value = String(valores?.valorUnitario ?? 0)
 
   const botaoRemover = document.createElement('button')
   botaoRemover.type = 'button'
@@ -241,13 +269,13 @@ function criarLinhaItem(valores?: { id?: number; produto: string; quantidade: nu
     campo.addEventListener('input', atualizarTotalFormulario)
   }
 
-  linha.appendChild(produto)
+  linha.appendChild(selectProduto)
   linha.appendChild(quantidade)
   linha.appendChild(valorUnitario)
   linha.appendChild(botaoRemover)
   listaItens.appendChild(linha)
 
-  linhasItens.push({ id: valores?.id, linha, produto, quantidade, valorUnitario })
+  linhasItens.push({ id: valores?.id, linha, selectProduto, quantidade, valorUnitario })
 }
 
 function atualizarTotalFormulario(): void {
@@ -300,7 +328,7 @@ function abrirDialogoEdicao(pedido: Pedido): void {
 function coletarItensDoFormulario(): Array<{ id?: number; produto: string; quantidade: number; valorUnitario: number }> {
   return linhasItens.map((ref) => ({
     id: ref.id,
-    produto: ref.produto.value.trim(),
+    produto: ref.selectProduto.value.trim(),
     quantidade: Number(ref.quantidade.value),
     valorUnitario: Number(ref.valorUnitario.value),
   }))
@@ -315,7 +343,7 @@ function validarFormulario(itens: Array<{ produto: string; quantidade: number; v
   }
   for (const item of itens) {
     if (!item.produto) {
-      return 'Todo item precisa de um nome de produto.'
+      return 'Todo item precisa de um produto selecionado.'
     }
     if (!Number.isFinite(item.quantidade) || item.quantidade <= 0) {
       return 'A quantidade de cada item deve ser maior que zero.'
