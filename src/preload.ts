@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { AtualizarPedido, NovoPedido, Pedido, StatusPedido } from './types'
+import type { AtualizarPedido, NovoPedido, Pedido, StatusPedido } from './type'
 
 const api = {
   listarPedidos: (): Promise<Pedido[]> => ipcRenderer.invoke('pedidos:listar'),

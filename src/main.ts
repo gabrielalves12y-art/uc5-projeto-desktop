@@ -1,19 +1,17 @@
 import { app, BrowserWindow, ipcMain, Menu } from 'electron'
-import path from 'path'
+import path from 'node:path'
+import { PedidosStore } from './gerenciador'
+import type { AtualizarPedido, NovoPedido, StatusPedido } from './type'
 
+const pedidosStore = new PedidosStore(app.getPath('userData'))
 
-let mainWindow: BrowserWindow | null = null
-
-function createWindow() {
-  mainWindow = new BrowserWindow({
+function criarJanela(): void {
+  const janela = new BrowserWindow({
     width: 1200,
     height: 800,
-    minWidth: 1000,
+    minWidth: 900,
     minHeight: 600,
-    center: true,
-    title: 'Meu sistema de gerenciamento de pedidos',
-    show: false,
-    
+    title: 'Gerenciamento de Pedidos',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -21,19 +19,14 @@ function createWindow() {
     },
   })
 
-  mainWindow.once('ready-to-show', () => {
-    mainWindow?.show()
-  })
-
   if (process.env.VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL)
-    mainWindow.webContents.openDevTools()
+    janela.loadURL(process.env.VITE_DEV_SERVER_URL)
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
+    janela.loadFile(path.join(__dirname, '../dist/index.html'))
   }
 }
 
-function createMenu() {
+function criarMenu(): void {
   const menu = Menu.buildFromTemplate([
     {
       label: 'Meu sistema de gerenciamento de pedidos',
@@ -53,24 +46,56 @@ function createMenu() {
       submenu: [
         { role: 'undo', label: 'Desfazer' },
         { role: 'redo', label: 'Refazer' },
-        { type: 'separator' },  
+        { type: 'separator' },
         { role: 'cut', label: 'Recortar' },
         { role: 'copy', label: 'Copiar' },
         { role: 'paste', label: 'Colar' },
       ],
     },
-  ])  
+  ])
 
   Menu.setApplicationMenu(menu)
 }
 
+ipcMain.handle('pedidos:listar', async () => {
+  return pedidosStore.listar()
+})
+
+ipcMain.handle('pedidos:criar', async (_evento, input: NovoPedido) => {
+  if (!input.cliente?.trim()) {
+    throw new Error('Informe o cliente do pedido.')
+  }
+  if (!input.itens?.length) {
+    throw new Error('O pedido precisa de ao menos um item.')
+  }
+  return pedidosStore.criar(input)
+})
+
+ipcMain.handle('pedidos:atualizar', async (_evento, input: AtualizarPedido) => {
+  if (!input.cliente?.trim()) {
+    throw new Error('Informe o cliente do pedido.')
+  }
+  if (!input.itens?.length) {
+    throw new Error('O pedido precisa de ao menos um item.')
+  }
+  return pedidosStore.atualizar(input)
+})
+
+ipcMain.handle('pedidos:atualizar-status', async (_evento, id: number, status: StatusPedido) => {
+  return pedidosStore.atualizarStatus(id, status)
+})
+
+ipcMain.handle('pedidos:excluir', async (_evento, id: number) => {
+  await pedidosStore.excluir(id)
+})
+
 app.whenReady().then(() => {
-  createWindow()
-  createMenu()
+  criarJanela()
+  criarMenu()
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow()
+      criarJanela()
     }
   })
 })
@@ -79,12 +104,4 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
-})
-
-app.on('before-quit', () => {
-  console.log('Até logo! Fechando o sistema de pedidos...')
-})
-
-ipcMain.handle('canal-ping', async () => {
-  return 'Em desenvolvimento!'
 })
