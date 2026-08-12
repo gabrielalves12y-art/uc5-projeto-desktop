@@ -363,6 +363,25 @@ async function salvarPedido(): Promise<void> {
   }
 }
 
+const botaoTema = document.getElementById('botao-tema') as HTMLButtonElement
+
+function aplicarTema(escuro: boolean): void {
+  document.documentElement.dataset.tema = escuro ? 'escuro' : ''
+  botaoTema.textContent = escuro ? '☀️' : '🌑'
+  botaoTema.title = escuro ? 'Alternar modo claro' : 'Alternar modo noturno'
+  localStorage.setItem('tema', escuro ? 'escuro' : 'claro')
+}
+
+function inicializarTema(): void {
+  const temaSalvo = localStorage.getItem('tema')
+  const prefereEscuro = window.matchMedia('(prefers-color-scheme: dark)').matches
+  aplicarTema(temaSalvo === 'escuro' || (!temaSalvo && prefereEscuro))
+}
+
+botaoTema.addEventListener('click', () => {
+  aplicarTema(document.documentElement.dataset.tema !== 'escuro')
+})
+
 botaoNovoPedido.addEventListener('click', abrirDialogoCriacao)
 botaoAdicionarItem.addEventListener('click', () => criarLinhaItem())
 botaoCancelarPedido.addEventListener('click', () => dialogoPedido.close())
@@ -375,4 +394,5 @@ formularioPedido.addEventListener('submit', (evento) => {
 campoBusca.addEventListener('input', renderizarTabela)
 campoFiltroStatus.addEventListener('change', renderizarTabela)
 
+inicializarTema()
 void carregarPedidos()

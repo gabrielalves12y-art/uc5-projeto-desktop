@@ -23,6 +23,30 @@
   color-scheme: light;
 }
 
+[data-tema='escuro'] {
+  --cor-fundo: #0f1117;
+  --cor-superficie: #1a1d27;
+  --cor-texto: #e8eaf0;
+  --cor-texto-suave: #8b92a5;
+  --cor-borda: #2a2d3a;
+  --cor-primaria: #5b7cfd;
+  --cor-primaria-escura: #4a68e8;
+  --cor-perigo: #f06b62;
+  --cor-perigo-fundo: #2d1a19;
+  --cor-sucesso: #34c76a;
+
+  --status-pendente: #e0a020;
+  --status-pendente-fundo: #2a2010;
+  --status-em_andamento: #5b9bff;
+  --status-em_andamento-fundo: #101e36;
+  --status-concluido: #34c76a;
+  --status-concluido-fundo: #0d2318;
+  --status-cancelado: #8b92a5;
+  --status-cancelado-fundo: #1e2030;
+
+  color-scheme: dark;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -31,6 +55,7 @@ body {
   margin: 0;
   background: var(--cor-fundo);
   color: var(--cor-texto);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 #app {
@@ -49,6 +74,12 @@ body {
 .topo h1 {
   font-size: 22px;
   margin: 0;
+}
+
+.topo-acoes {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .botao {
@@ -81,7 +112,7 @@ body {
 }
 
 .botao-secundario:hover {
-  background: #f0f1f4;
+  background: var(--cor-fundo);
 }
 
 .botao-perigo {
@@ -90,12 +121,17 @@ body {
 }
 
 .botao-perigo:hover {
-  background: #fbdad7;
+  filter: brightness(1.1);
 }
 
 .botao-icone {
   padding: 6px 10px;
   font-size: 13px;
+}
+
+#botao-tema {
+  padding: 8px 12px;
+  font-size: 16px;
 }
 
 .resumo {
@@ -110,6 +146,7 @@ body {
   border: 1px solid var(--cor-borda);
   border-radius: 10px;
   padding: 14px 16px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .card-resumo .valor {
@@ -136,6 +173,8 @@ body {
   padding: 9px 12px;
   font-size: 14px;
   background: var(--cor-superficie);
+  color: var(--cor-texto);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .filtros input {
@@ -149,6 +188,7 @@ body {
   border: 1px solid var(--cor-borda);
   border-radius: 10px;
   overflow: hidden;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .tabela-pedidos th,
@@ -165,7 +205,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--cor-texto-suave);
-  background: #fafafa;
+  background: var(--cor-fundo);
 }
 
 .tabela-pedidos tbody tr:last-child td {
@@ -212,10 +252,12 @@ body {
 
 .seletor-status-tabela {
   border: 1px solid var(--cor-borda);
+  margin-top: 6px;
   border-radius: 6px;
   padding: 4px 6px;
   font-size: 12px;
   background: var(--cor-superficie);
+  color: var(--cor-texto);
 }
 
 .linha-acoes {
@@ -234,10 +276,12 @@ dialog {
   padding: 0;
   width: min(560px, 92vw);
   box-shadow: 0 12px 40px rgba(15, 23, 42, 0.25);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
 }
 
 dialog::backdrop {
-  background: rgba(15, 23, 42, 0.45);
+  background: rgba(15, 23, 42, 0.55);
 }
 
 #formulario-pedido {
@@ -269,8 +313,10 @@ dialog::backdrop {
   padding: 9px 12px;
   font-size: 14px;
   color: var(--cor-texto);
+  background: var(--cor-fundo);
   font-family: inherit;
   resize: vertical;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .itens-cabecalho {
@@ -302,9 +348,10 @@ dialog::backdrop {
   padding: 8px 10px;
   font-size: 13px;
   width: 100%;
-  background: var(--cor-superficie);
+  background: var(--cor-fundo);
   color: var(--cor-texto);
-  font-family: inherit;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .linha-item button {

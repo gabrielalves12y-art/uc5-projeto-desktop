@@ -21,6 +21,7 @@ function criarJanela(): void {
 
   if (process.env.VITE_DEV_SERVER_URL) {
     janela.loadURL(process.env.VITE_DEV_SERVER_URL)
+    janela.webContents.openDevTools()
   } else {
     janela.loadFile(path.join(__dirname, '../dist/index.html'))
   }
