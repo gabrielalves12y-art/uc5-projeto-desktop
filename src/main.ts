@@ -12,12 +12,15 @@ function criarJanela(): void {
     minWidth: 900,
     minHeight: 600,
     title: 'Gerenciamento de Pedidos',
+    show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },
   })
+
+  janela.once('ready-to-show', () => janela.show())
 
   if (process.env.VITE_DEV_SERVER_URL) {
     janela.loadURL(process.env.VITE_DEV_SERVER_URL)
