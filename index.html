@@ -37,6 +37,8 @@
         <table class="tabela-pedidos">
           <thead>
             <tr>
+              <th>Mesa</th>
+              <th>Atendente</th>
               <th>Cliente</th>
               <th>Itens</th>
               <th>Total</th>
@@ -54,6 +56,18 @@
     <dialog id="dialogo-pedido">
       <form id="formulario-pedido">
         <h2 id="titulo-dialogo-pedido">Novo pedido</h2>
+
+        <div class="campos-linha">
+          <label class="campo">
+            <span>Mesa</span>
+            <input id="campo-mesa" type="text" required maxlength="20" placeholder="Ex: Mesa 5" />
+          </label>
+
+          <label class="campo">
+            <span>Atendente / Garçom</span>
+            <select id="campo-atendente" required></select>
+          </label>
+        </div>
 
         <label class="campo">
           <span>Cliente</span>
@@ -83,6 +97,55 @@
           <button id="botao-salvar-pedido" class="botao botao-primario" type="submit">Salvar pedido</button>
         </div>
       </form>
+    </dialog>
+
+    <dialog id="dialogo-detalhes-pedido">
+      <div class="detalhes-conteudo">
+        <div class="detalhes-cabecalho">
+          <div>
+            <h2 id="detalhes-titulo">Pedido</h2>
+            <span id="detalhes-selo-status" class="selo-status"></span>
+          </div>
+          <button id="botao-fechar-detalhes" class="botao botao-secundario botao-icone" type="button" title="Fechar modal">✕</button>
+        </div>
+
+        <dl class="detalhes-grade">
+          <div>
+            <dt>Atendente responsável</dt>
+            <dd id="detalhes-atendente"></dd>
+          </div>
+          <div>
+            <dt>Cliente</dt>
+            <dd id="detalhes-cliente"></dd>
+          </div>
+          <div>
+            <dt>Criado em</dt>
+            <dd id="detalhes-criado-em"></dd>
+          </div>
+          <div>
+            <dt>Última atualização</dt>
+            <dd id="detalhes-atualizado-em"></dd>
+          </div>
+        </dl>
+
+        <div>
+          <h3>Itens do pedido</h3>
+          <ul id="detalhes-lista-itens" class="detalhes-itens"></ul>
+          <p class="detalhes-total">Total: <strong id="detalhes-total"></strong></p>
+        </div>
+
+        <div>
+          <h3>Observações</h3>
+          <p id="detalhes-observacoes" class="detalhes-observacoes"></p>
+        </div>
+
+        <div class="acoes-dialogo">
+          <button id="botao-detalhes-cancelar-pedido" class="botao botao-perigo" type="button">Cancelar pedido</button>
+          <button id="botao-detalhes-concluir-pedido" class="botao botao-secundario" type="button">Concluir</button>
+          <button id="botao-detalhes-editar" class="botao botao-secundario" type="button">Editar</button>
+          <button id="botao-detalhes-fechar" class="botao botao-primario" type="button">Fechar</button>
+        </div>
+      </div>
     </dialog>
 
     <script type="module" src="/src/renderer.ts"></script>

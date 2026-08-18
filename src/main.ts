@@ -66,6 +66,12 @@ ipcMain.handle('pedidos:listar', async () => {
 })
 
 ipcMain.handle('pedidos:criar', async (_evento, input: NovoPedido) => {
+  if (!input.mesa?.trim()) {
+    throw new Error('Informe o número da mesa.')
+  }
+  if (!input.atendente?.trim()) {
+    throw new Error('Selecione o atendente responsável.')
+  }
   if (!input.cliente?.trim()) {
     throw new Error('Informe o cliente do pedido.')
   }
@@ -76,6 +82,12 @@ ipcMain.handle('pedidos:criar', async (_evento, input: NovoPedido) => {
 })
 
 ipcMain.handle('pedidos:atualizar', async (_evento, input: AtualizarPedido) => {
+  if (!input.mesa?.trim()) {
+    throw new Error('Informe o número da mesa.')
+  }
+  if (!input.atendente?.trim()) {
+    throw new Error('Selecione o atendente responsável.')
+  }
   if (!input.cliente?.trim()) {
     throw new Error('Informe o cliente do pedido.')
   }

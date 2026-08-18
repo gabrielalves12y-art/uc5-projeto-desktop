@@ -1,5 +1,5 @@
 import './style.css'
-import { calcularTotalPedido, STATUS_LABELS, PRODUTOS_PREDEFINIDOS } from './type'
+import { calcularTotalPedido, STATUS_LABELS, PRODUTOS_PREDEFINIDOS, FUNCIONARIOS_PREDEFINIDOS } from './type'
 import type { Pedido, StatusPedido } from './type'
 
 const corpoTabela = document.getElementById('corpo-tabela-pedidos') as HTMLTableSectionElement
@@ -13,6 +13,8 @@ const botaoNovoPedido = document.getElementById('botao-novo-pedido') as HTMLButt
 const dialogoPedido = document.getElementById('dialogo-pedido') as HTMLDialogElement
 const formularioPedido = document.getElementById('formulario-pedido') as HTMLFormElement
 const tituloDialogo = document.getElementById('titulo-dialogo-pedido') as HTMLHeadingElement
+const campoMesa = document.getElementById('campo-mesa') as HTMLInputElement
+const campoAtendente = document.getElementById('campo-atendente') as HTMLSelectElement
 const campoCliente = document.getElementById('campo-cliente') as HTMLInputElement
 const campoObservacoes = document.getElementById('campo-observacoes') as HTMLTextAreaElement
 const listaItens = document.getElementById('lista-itens') as HTMLDivElement
@@ -21,8 +23,25 @@ const totalFormulario = document.getElementById('total-formulario') as HTMLEleme
 const erroFormulario = document.getElementById('erro-formulario') as HTMLParagraphElement
 const botaoCancelarPedido = document.getElementById('botao-cancelar-pedido') as HTMLButtonElement
 
+const dialogoDetalhes = document.getElementById('dialogo-detalhes-pedido') as HTMLDialogElement
+const detalhesTitulo = document.getElementById('detalhes-titulo') as HTMLHeadingElement
+const detalhesSeloStatus = document.getElementById('detalhes-selo-status') as HTMLElement
+const detalhesAtendente = document.getElementById('detalhes-atendente') as HTMLElement
+const detalhesCliente = document.getElementById('detalhes-cliente') as HTMLElement
+const detalhesCriadoEm = document.getElementById('detalhes-criado-em') as HTMLElement
+const detalhesAtualizadoEm = document.getElementById('detalhes-atualizado-em') as HTMLElement
+const detalhesListaItens = document.getElementById('detalhes-lista-itens') as HTMLUListElement
+const detalhesTotal = document.getElementById('detalhes-total') as HTMLElement
+const detalhesObservacoes = document.getElementById('detalhes-observacoes') as HTMLElement
+const botaoFecharDetalhes = document.getElementById('botao-fechar-detalhes') as HTMLButtonElement
+const botaoDetalhesFechar = document.getElementById('botao-detalhes-fechar') as HTMLButtonElement
+const botaoDetalhesEditar = document.getElementById('botao-detalhes-editar') as HTMLButtonElement
+const botaoDetalhesConcluir = document.getElementById('botao-detalhes-concluir-pedido') as HTMLButtonElement
+const botaoDetalhesCancelar = document.getElementById('botao-detalhes-cancelar-pedido') as HTMLButtonElement
+
 let pedidos: Pedido[] = []
 let idPedidoEmEdicao: number | null = null
+let pedidoEmDetalhe: Pedido | null = null
 
 interface LinhaItemRefs {
   id?: number
@@ -49,6 +68,28 @@ function formatarMoeda(valor: number): string {
 
 function formatarData(isoString: string): string {
   return formatadorData.format(new Date(isoString))
+}
+
+function popularSelectAtendente(select: HTMLSelectElement, selecionado?: string): void {
+  select.innerHTML = ''
+
+  const opcaoPadrao = document.createElement('option')
+  opcaoPadrao.value = ''
+  opcaoPadrao.textContent = 'Selecione o atendente...'
+  opcaoPadrao.disabled = true
+  select.appendChild(opcaoPadrao)
+
+  for (const funcionario of FUNCIONARIOS_PREDEFINIDOS) {
+    const opcao = document.createElement('option')
+    opcao.value = funcionario.nome
+    opcao.textContent = `${funcionario.nome} — ${funcionario.cargo}`
+    select.appendChild(opcao)
+  }
+
+  select.value = selecionado ?? ''
+  if (!select.value) {
+    opcaoPadrao.selected = true
+  }
 }
 
 async function carregarPedidos(): Promise<void> {
@@ -106,6 +147,26 @@ function renderizarTabela(): void {
 
 function criarLinhaTabela(pedido: Pedido): HTMLTableRowElement {
   const linha = document.createElement('tr')
+  linha.className = 'linha-pedido'
+  linha.tabIndex = 0
+  linha.title = 'Clique para ver os detalhes do pedido'
+  linha.addEventListener('click', () => abrirDialogoDetalhes(pedido))
+  linha.addEventListener('keydown', (evento) => {
+    if (evento.key === 'Enter' || evento.key === ' ') {
+      evento.preventDefault()
+      abrirDialogoDetalhes(pedido)
+    }
+  })
+
+  const celulaMesa = document.createElement('td')
+  celulaMesa.className = 'coluna-mesa'
+  celulaMesa.textContent = pedido.mesa
+  linha.appendChild(celulaMesa)
+
+  const celulaAtendente = document.createElement('td')
+  celulaAtendente.className = 'coluna-atendente'
+  celulaAtendente.textContent = pedido.atendente
+  linha.appendChild(celulaAtendente)
 
   const celulaCliente = document.createElement('td')
   celulaCliente.textContent = pedido.cliente
@@ -130,6 +191,7 @@ function criarLinhaTabela(pedido: Pedido): HTMLTableRowElement {
     opcao.selected = status === pedido.status
     seletorStatus.appendChild(opcao)
   }
+  seletorStatus.addEventListener('click', (evento) => evento.stopPropagation())
   seletorStatus.addEventListener('change', () => {
     void alterarStatus(pedido.id, seletorStatus.value as StatusPedido)
   })
@@ -155,13 +217,19 @@ function criarLinhaTabela(pedido: Pedido): HTMLTableRowElement {
   botaoEditar.className = 'botao botao-secundario botao-icone'
   botaoEditar.type = 'button'
   botaoEditar.textContent = 'Editar'
-  botaoEditar.addEventListener('click', () => abrirDialogoEdicao(pedido))
+  botaoEditar.addEventListener('click', (evento) => {
+    evento.stopPropagation()
+    abrirDialogoEdicao(pedido)
+  })
 
   const botaoExcluir = document.createElement('button')
   botaoExcluir.className = 'botao botao-perigo botao-icone'
   botaoExcluir.type = 'button'
   botaoExcluir.textContent = 'Excluir'
-  botaoExcluir.addEventListener('click', () => void excluirPedido(pedido))
+  botaoExcluir.addEventListener('click', (evento) => {
+    evento.stopPropagation()
+    void excluirPedido(pedido)
+  })
 
   containerAcoes.appendChild(botaoEditar)
   containerAcoes.appendChild(botaoExcluir)
@@ -186,6 +254,55 @@ async function excluirPedido(pedido: Pedido): Promise<void> {
   const confirmou = window.confirm(`Excluir o pedido de "${pedido.cliente}"? Essa ação não pode ser desfeita.`)
   if (!confirmou) return
   await window.api.excluirPedido(pedido.id)
+  await carregarPedidos()
+}
+
+function abrirDialogoDetalhes(pedido: Pedido): void {
+  pedidoEmDetalhe = pedido
+
+  detalhesTitulo.textContent = `${pedido.mesa} — Pedido #${pedido.id}`
+  detalhesSeloStatus.dataset.status = pedido.status
+  detalhesSeloStatus.textContent = STATUS_LABELS[pedido.status]
+
+  detalhesAtendente.textContent = pedido.atendente
+  detalhesCliente.textContent = pedido.cliente
+  detalhesCriadoEm.textContent = formatarData(pedido.criadoEm)
+  detalhesAtualizadoEm.textContent = formatarData(pedido.atualizadoEm)
+
+  detalhesListaItens.innerHTML = ''
+  for (const item of pedido.itens) {
+    const linhaItem = document.createElement('li')
+
+    const descricao = document.createElement('span')
+    descricao.textContent = `${item.quantidade}x ${item.produto}`
+
+    const valor = document.createElement('span')
+    valor.textContent = formatarMoeda(item.quantidade * item.valorUnitario)
+
+    linhaItem.appendChild(descricao)
+    linhaItem.appendChild(valor)
+    detalhesListaItens.appendChild(linhaItem)
+  }
+
+  detalhesTotal.textContent = formatarMoeda(calcularTotalPedido(pedido))
+  detalhesObservacoes.textContent = pedido.observacoes || 'Nenhuma observação registrada.'
+
+  const pedidoFinalizado = pedido.status === 'concluido' || pedido.status === 'cancelado'
+  botaoDetalhesConcluir.disabled = pedidoFinalizado
+  botaoDetalhesCancelar.disabled = pedidoFinalizado
+
+  dialogoDetalhes.showModal()
+}
+
+function fecharDialogoDetalhes(): void {
+  dialogoDetalhes.close()
+  pedidoEmDetalhe = null
+}
+
+async function definirStatusDoPedidoEmDetalhe(status: StatusPedido): Promise<void> {
+  if (!pedidoEmDetalhe) return
+  await window.api.atualizarStatusPedido(pedidoEmDetalhe.id, status)
+  fecharDialogoDetalhes()
   await carregarPedidos()
 }
 
@@ -280,6 +397,8 @@ function atualizarTotalFormulario(): void {
 }
 
 function limparFormulario(): void {
+  campoMesa.value = ''
+  popularSelectAtendente(campoAtendente)
   campoCliente.value = ''
   campoObservacoes.value = ''
   listaItens.innerHTML = ''
@@ -294,13 +413,15 @@ function abrirDialogoCriacao(): void {
   tituloDialogo.textContent = 'Novo pedido'
   limparFormulario()
   dialogoPedido.showModal()
-  campoCliente.focus()
+  campoMesa.focus()
 }
 
 function abrirDialogoEdicao(pedido: Pedido): void {
   idPedidoEmEdicao = pedido.id
   tituloDialogo.textContent = 'Editar pedido'
   limparFormulario()
+  campoMesa.value = pedido.mesa
+  popularSelectAtendente(campoAtendente, pedido.atendente)
   campoCliente.value = pedido.cliente
   campoObservacoes.value = pedido.observacoes
   listaItens.innerHTML = ''
@@ -309,7 +430,7 @@ function abrirDialogoEdicao(pedido: Pedido): void {
     criarLinhaItem(item)
   }
   dialogoPedido.showModal()
-  campoCliente.focus()
+  campoMesa.focus()
 }
 
 function coletarItensDoFormulario(): Array<{ id?: number; produto: string; quantidade: number; valorUnitario: number }> {
@@ -322,6 +443,8 @@ function coletarItensDoFormulario(): Array<{ id?: number; produto: string; quant
 }
 
 function validarFormulario(itens: Array<{ produto: string; quantidade: number; valorUnitario: number }>): string | null {
+  if (!campoMesa.value.trim()) return 'Informe o número da mesa.'
+  if (!campoAtendente.value.trim()) return 'Selecione o atendente responsável.'
   if (!campoCliente.value.trim()) return 'Informe o nome do cliente.'
   if (itens.length === 0) return 'Adicione ao menos um item ao pedido.'
   for (const item of itens) {
@@ -344,12 +467,16 @@ async function salvarPedido(): Promise<void> {
     if (idPedidoEmEdicao) {
       await window.api.atualizarPedido({
         id: idPedidoEmEdicao,
+        mesa: campoMesa.value,
+        atendente: campoAtendente.value,
         cliente: campoCliente.value,
         observacoes: campoObservacoes.value,
         itens,
       })
     } else {
       await window.api.criarPedido({
+        mesa: campoMesa.value,
+        atendente: campoAtendente.value,
         cliente: campoCliente.value,
         observacoes: campoObservacoes.value,
         itens,
@@ -394,5 +521,27 @@ formularioPedido.addEventListener('submit', (evento) => {
 campoBusca.addEventListener('input', renderizarTabela)
 campoFiltroStatus.addEventListener('change', renderizarTabela)
 
+botaoFecharDetalhes.addEventListener('click', fecharDialogoDetalhes)
+botaoDetalhesFechar.addEventListener('click', fecharDialogoDetalhes)
+
+botaoDetalhesEditar.addEventListener('click', () => {
+  if (!pedidoEmDetalhe) return
+  const pedido = pedidoEmDetalhe
+  fecharDialogoDetalhes()
+  abrirDialogoEdicao(pedido)
+})
+
+botaoDetalhesConcluir.addEventListener('click', () => {
+  void definirStatusDoPedidoEmDetalhe('concluido')
+})
+
+botaoDetalhesCancelar.addEventListener('click', () => {
+  if (!pedidoEmDetalhe) return
+  const confirmou = window.confirm('Cancelar este pedido? Essa ação não pode ser desfeita.')
+  if (!confirmou) return
+  void definirStatusDoPedidoEmDetalhe('cancelado')
+})
+
 inicializarTema()
 void carregarPedidos()
+

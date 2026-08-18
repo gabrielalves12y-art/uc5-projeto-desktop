@@ -270,6 +270,23 @@ body {
   font-size: 13px;
 }
 
+.linha-pedido {
+  cursor: pointer;
+}
+
+.linha-pedido:hover td {
+  background: var(--cor-fundo);
+}
+
+.coluna-mesa {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.coluna-atendente {
+  white-space: nowrap;
+}
+
 dialog {
   border: none;
   border-radius: 12px;
@@ -306,7 +323,14 @@ dialog::backdrop {
   color: var(--cor-texto-suave);
 }
 
+.campos-linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
 .campo input,
+.campo select,
 .campo textarea {
   border: 1px solid var(--cor-borda);
   border-radius: 8px;
@@ -380,7 +404,105 @@ dialog::backdrop {
 
 .acoes-dialogo {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 10px;
   margin-top: 6px;
+}
+
+#dialogo-detalhes-pedido {
+  border: none;
+  border-radius: 12px;
+  padding: 0;
+  width: min(600px, 92vw);
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.25);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+}
+
+#dialogo-detalhes-pedido::backdrop {
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.detalhes-conteudo {
+  padding: 24px;
+  max-height: 85vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.detalhes-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.detalhes-cabecalho h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.detalhes-grade {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 20px;
+  margin: 0;
+}
+
+.detalhes-grade dt {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--cor-texto-suave);
+  margin-bottom: 2px;
+}
+
+.detalhes-grade dd {
+  margin: 0;
+  font-size: 14px;
+}
+
+.detalhes-conteudo h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--cor-texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.detalhes-itens {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detalhes-itens li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+  border-bottom: 1px dashed var(--cor-borda);
+  padding-bottom: 6px;
+}
+
+.detalhes-total {
+  text-align: right;
+  font-size: 14px;
+  margin: 8px 0 0;
+}
+
+.detalhes-observacoes {
+  font-size: 14px;
+  color: var(--cor-texto);
+  background: var(--cor-fundo);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 0;
+  white-space: pre-wrap;
 }

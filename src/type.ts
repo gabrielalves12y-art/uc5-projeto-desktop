@@ -7,6 +7,8 @@ export interface Produto {
 
 export interface Pedido {
   id: number
+  mesa: string
+  atendente: string
   cliente: string
   itens: Produto[]
   status: StatusPedido
@@ -23,6 +25,8 @@ export interface ItemPedidoInput {
 }
 
 export interface NovoPedido {
+  mesa: string
+  atendente: string
   cliente: string
   observacoes: string
   itens: ItemPedidoInput[]
@@ -30,6 +34,8 @@ export interface NovoPedido {
 
 export interface AtualizarPedido {
   id: number
+  mesa: string
+  atendente: string
   cliente: string
   observacoes: string
   itens: ItemPedidoInput[]
@@ -65,6 +71,27 @@ export const PRODUTOS_PREDEFINIDOS: ProdutoPredefinido[] = [
   { id: 11, nome: 'Torta', categoria: 'Lanches', valorUnitario: 3.5 },
   {id: 12, nome: 'Fatia de Pizza', categoria: 'Lanches', valorUnitario: 4.0 },
   { id: 13, nome: 'Salada', categoria: 'Lanches', valorUnitario: 6.0 },
+]
+
+export type CargoFuncionario = 'Garcom' | 'Atendente' | 'Gerente'
+
+export interface FuncionarioPredefinido {
+  id: number
+  nome: string
+  cargo: CargoFuncionario
+}
+
+export const FUNCIONARIOS_PREDEFINIDOS: FuncionarioPredefinido[] = [
+  { id: 1, nome: 'João', cargo: 'Garcom' },
+  { id: 2, nome: 'Maria', cargo: 'Atendente' },
+  { id: 3, nome: 'Carlos', cargo: 'Gerente' },
+  { id: 4, nome: 'Ana', cargo: 'Garcom' },
+  { id: 5, nome: 'Pedro', cargo: 'Atendente' },
+  { id: 6, nome: 'Fernanda', cargo: 'Gerente' },
+  { id: 7, nome: 'Lucas', cargo: 'Garcom' },
+  { id: 8, nome: 'Juliana', cargo: 'Atendente' },
+  { id: 9, nome: 'Rafael', cargo: 'Garcom' },
+  { id: 10, nome: 'Camila', cargo: 'Garcom' },
 ]
 
 export function calcularTotalPedido(pedido: Pick<Pedido, 'itens'>): number {

@@ -60,6 +60,8 @@ export class PedidosStore {
 
     const novoPedido: Pedido = {
       id: this.proximoIdPedido(pedidos),
+      mesa: input.mesa.trim(),
+      atendente: input.atendente.trim(),
       cliente: input.cliente.trim(),
       observacoes: input.observacoes.trim(),
       status: 'pendente',
@@ -92,6 +94,8 @@ export class PedidosStore {
 
     const atualizado: Pedido = {
       ...existente,
+      mesa: input.mesa.trim(),
+      atendente: input.atendente.trim(),
       cliente: input.cliente.trim(),
       observacoes: input.observacoes.trim(),
       itens,
